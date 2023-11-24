@@ -1,2 +1,2 @@
-# IOT_devices_back
+# IOT_devices_backend
 BACKEND for iot devices
