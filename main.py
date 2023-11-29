@@ -21,29 +21,30 @@ app.add_middleware(
 )
 
 class Device(BaseModel):
-    id: int
     device: str
-    value: str
+    value: int
 
 @app.post("/iot")
 async def crear_dispositivo(device: Device):
     """Crea un nuevo dispositivo."""
     c = conn.cursor()
-    c.execute('INSERT INTO iot (id, device, value) VALUES (?, ?, ?)',
-              (device.id, device.device, device.value))
+    c.execute('INSERT INTO iot (device, value) VALUES (?, ?)',
+              (device.device, device.value))
     conn.commit()
-    return device.dict()
+    new_device_id = c.lastrowid  # Obtén el ID generado automáticamente
+    return {"id": new_device_id, "device": device.device, "value": device.value}
+
 
 @app.get("/iot")
 async def obtener_dispositivos():
     """Obtiene todos los dispositivos."""
     c = conn.cursor()
     c.execute('SELECT * FROM iot')
-    response = []
+    devices = []
     for row in c.fetchall():
-        device = Device(id=row[0], device=row[1], value=row[2])
-        response.append(device.dict())
-    return response
+        device = {"id": row[0], "device": row[1], "value": row[2]}
+        devices.append(device)
+    return devices
 
 @app.get("/iot/{id}")
 async def obtener_dispositivo(id: int):
@@ -52,27 +53,27 @@ async def obtener_dispositivo(id: int):
     c.execute('SELECT * FROM iot WHERE id = ?', (id,))
     row = c.fetchone()
     if row:
-        device = Device(id=row[0], device=row[1], value=row[2])
-        return device.dict()
+        device = {"id": row[0], "device": row[1], "value": row[2]}
+        return device
     else:
-        return None
+        return {"error": -1}
 
-@app.put("/iot/{id}/{value}")
-async def actualizar_dispositivo(id: int, value: str):
+@app.patch("/iot/{id}/{value}")
+async def actualizar_dispositivo(id: int, value: int):
     """Actualiza el valor de un dispositivo."""
     # Verifica si el dispositivo existe antes de actualizar
     c = conn.cursor()
     c.execute('SELECT * FROM iot WHERE id = ?', (id,))
     row = c.fetchone()
     if not row:
-        raise fastapi.HTTPException(status_code=404, detail="Dispositivo no encontrado")
+        return {"error": -1}
 
     # Actualiza el valor del dispositivo en la base de datos
     c.execute('UPDATE iot SET value = ? WHERE id = ?', (value, id))
     conn.commit()
 
     # Retorna el resultado
-    return {"id": id, "value": value}
+    return {"value": value}
 
 @app.delete("/iot/{id}")
 async def eliminar_dispositivo(id: int):
