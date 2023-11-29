@@ -9,7 +9,7 @@ conn = sqlite3.connect("sql/devices.db")
 app = fastapi.FastAPI()
 
 origins = [
-    "https://api-dispositivos-frontend-xxxxxxxxx.herokuapp.com"  # Cambia la URL según tu frontend de dispositivos
+    "http://127.0.0.1:8080"  # Cambia la URL según tu frontend de dispositivos
 ]
 
 app.add_middleware(
