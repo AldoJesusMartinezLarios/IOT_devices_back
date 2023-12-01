@@ -8,16 +8,22 @@ conn = sqlite3.connect("sql/dispositivos.db")
 
 app = fastapi.FastAPI()
 
+# Permitimos los origenes para conectarse
 origins = [
-    "http://127.0.0.1:8080"  # Cambia la URL según tu frontend de dispositivos
+    "http://0.0.0.0:8080",
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
+    "https://wokwi.com/projects/382924417699279873",
+    "https://iotfrontend-76a7ab26b9a7.herokuapp.com"
 ]
 
+# Agregamos las opciones de origenes, credenciales, métodos y headers
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins = origins,
+    allow_credentials = True,
+    allow_methods = ["*"],
+    allow_headers = ["*"]
 )
 
 class Dispositivo(BaseModel):
