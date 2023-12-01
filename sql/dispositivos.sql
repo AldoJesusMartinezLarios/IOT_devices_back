@@ -1,0 +1,5 @@
+CREATE TABLE iot (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    dispositivo VARCHAR,
+    valor INTEGER
+);

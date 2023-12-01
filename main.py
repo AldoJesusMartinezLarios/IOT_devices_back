@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 
 # Conecta a la base de datos
-conn = sqlite3.connect("sql/devices.db")
+conn = sqlite3.connect("sql/dispositivos.db")
 
 app = fastapi.FastAPI()
 
@@ -20,19 +20,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-class Device(BaseModel):
-    device: str
-    value: int
+class Dispositivo(BaseModel):
+    dispositivo: str
+    valor: int
 
 @app.post("/iot")
-async def crear_dispositivo(device: Device):
+async def crear_dispositivo(dispositivo: Dispositivo):
     """Crea un nuevo dispositivo."""
     c = conn.cursor()
-    c.execute('INSERT INTO iot (device, value) VALUES (?, ?)',
-              (device.device, device.value))
+    c.execute('INSERT INTO iot (dispositivo, valor) VALUES (?, ?)',
+              (dispositivo.dispositivo, dispositivo.valor))
     conn.commit()
-    new_device_id = c.lastrowid  # Obtén el ID generado automáticamente
-    return {"id": new_device_id, "device": device.device, "value": device.value}
+    new_dispositivo_id = c.lastrowid  # Obtén el ID generado automáticamente
+    return {"id": new_dispositivo_id, "dispositivo": dispositivo.dispositivo, "valor": dispositivo.valor}
 
 
 @app.get("/iot")
@@ -40,11 +40,11 @@ async def obtener_dispositivos():
     """Obtiene todos los dispositivos."""
     c = conn.cursor()
     c.execute('SELECT * FROM iot')
-    devices = []
+    dispositivos = []
     for row in c.fetchall():
-        device = {"id": row[0], "device": row[1], "value": row[2]}
-        devices.append(device)
-    return devices
+        dispositivo = {"id": row[0], "dispositivo": row[1], "valor": row[2]}
+        dispositivos.append(dispositivo)
+    return dispositivos
 
 @app.get("/iot/{id}")
 async def obtener_dispositivo(id: int):
@@ -53,13 +53,13 @@ async def obtener_dispositivo(id: int):
     c.execute('SELECT * FROM iot WHERE id = ?', (id,))
     row = c.fetchone()
     if row:
-        device = {"id": row[0], "device": row[1], "value": row[2]}
-        return device
+        dispositivo = {"id": row[0], "dispositivo": row[1], "valor": row[2]}
+        return dispositivo
     else:
         return {"error": -1}
 
-@app.patch("/iot/{id}/{value}")
-async def actualizar_dispositivo(id: int, value: int):
+@app.patch("/iot/{id}/{valor}")
+async def actualizar_dispositivo(id: int, valor: int):
     """Actualiza el valor de un dispositivo."""
     # Verifica si el dispositivo existe antes de actualizar
     c = conn.cursor()
@@ -69,11 +69,11 @@ async def actualizar_dispositivo(id: int, value: int):
         return {"error": -1}
 
     # Actualiza el valor del dispositivo en la base de datos
-    c.execute('UPDATE iot SET value = ? WHERE id = ?', (value, id))
+    c.execute('UPDATE iot SET valor = ? WHERE id = ?', (valor, id))
     conn.commit()
 
     # Retorna el resultado
-    return {"value": value}
+    return {"valor": valor}
 
 @app.delete("/iot/{id}")
 async def eliminar_dispositivo(id: int):
