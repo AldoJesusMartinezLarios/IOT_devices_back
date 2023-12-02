@@ -56,9 +56,9 @@ async def get_dispositivo(id: int):
     return dispositivo
 
 @app.put("/dispositivos/{id}")
-async def get_dispositivo(id: int, dispositivo: DispositivoPUT):
-    """Obtiene un contacto por su email."""
-    # Consulta el contacto por su email
+async def put_dispositivo(id: int, dispositivo: DispositivoPUT):
+    """Actualiza un dispositivo por su id."""
+    # Actualiza un dispositivo por su id.
     c = conn.cursor()
     c.execute('UPDATE dispositivos SET valor = ? WHERE id = ?;',
               (dispositivo.valor,id))
